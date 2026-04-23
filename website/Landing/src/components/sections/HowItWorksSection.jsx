@@ -1,3 +1,10 @@
+import { useEffect, useState } from 'react'
+
+const AUTO_ADVANCE_MS = 6000
+const TIMER_INTERVAL_MS = 100
+const RING_RADIUS = 17
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
+
 const detailCards = [
   {
     kicker: 'Learn',
@@ -81,6 +88,31 @@ function BenefitIcon({ icon }) {
   )
 }
 
+function ProgressRing({ remainingMs }) {
+  const progress = remainingMs / AUTO_ADVANCE_MS
+  const dashOffset = RING_CIRCUMFERENCE * (1 - progress)
+  const countdown = Math.max(1, Math.ceil(remainingMs / 1000))
+
+  return (
+    <span className="workflow-card__timer" aria-hidden="true">
+      <svg viewBox="0 0 40 40">
+        <circle className="workflow-card__timer-track" cx="20" cy="20" r={RING_RADIUS} />
+        <circle
+          className="workflow-card__timer-progress"
+          cx="20"
+          cy="20"
+          r={RING_RADIUS}
+          style={{
+            strokeDasharray: RING_CIRCUMFERENCE,
+            strokeDashoffset: dashOffset,
+          }}
+        />
+      </svg>
+      <span>{countdown}</span>
+    </span>
+  )
+}
+
 function LessonPreview() {
   return (
     <div className="lesson-preview" aria-hidden="true">
@@ -125,6 +157,29 @@ function LessonPreview() {
 }
 
 function HowItWorksSection() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [remainingMs, setRemainingMs] = useState(AUTO_ADVANCE_MS)
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setRemainingMs((currentRemainingMs) => {
+        if (currentRemainingMs <= TIMER_INTERVAL_MS) {
+          setActiveIndex((currentIndex) => (currentIndex + 1) % detailCards.length)
+          return AUTO_ADVANCE_MS
+        }
+
+        return currentRemainingMs - TIMER_INTERVAL_MS
+      })
+    }, TIMER_INTERVAL_MS)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  function handleCardSelect(index) {
+    setActiveIndex(index)
+    setRemainingMs(AUTO_ADVANCE_MS)
+  }
+
   return (
     <section className="how-it-works" aria-labelledby="how-it-works-title">
       <div className="how-it-works__intro">
@@ -139,21 +194,39 @@ function HowItWorksSection() {
 
         <div className="how-it-works__rail">
           <div className="workflow-track" aria-hidden="true">
-            <span />
-            <span />
-            <span />
+            {detailCards.map((card, index) => (
+              <span
+                key={card.title}
+                className={index === activeIndex ? 'workflow-track__dot workflow-track__dot--active' : 'workflow-track__dot'}
+              />
+            ))}
           </div>
-          {detailCards.map((card) => (
+
+          {detailCards.map((card, index) => (
             <article
               key={card.title}
-              className={`workflow-card ${card.featured ? 'workflow-card--featured' : ''}`.trim()}
+              className={`workflow-card ${index === activeIndex ? 'workflow-card--active' : ''}`.trim()}
             >
-              <div className="workflow-card__head">
-                <span className="workflow-card__badge">{card.kicker}</span>
-                {card.step ? <strong className="workflow-card__step">{card.step}</strong> : null}
-              </div>
-              <h3>{card.title}</h3>
-              <p>{card.description}</p>
+              <button
+                className="workflow-card__trigger"
+                type="button"
+                onClick={() => handleCardSelect(index)}
+              >
+                <div className="workflow-card__head">
+                  <span className="workflow-card__badge">{card.kicker}</span>
+                  {index === activeIndex ? (
+                    <ProgressRing remainingMs={remainingMs} />
+                  ) : card.step ? (
+                    <strong className="workflow-card__step">{card.step}</strong>
+                  ) : null}
+                </div>
+                <h3>{card.title}</h3>
+                <div className="workflow-card__body">
+                  <div className="workflow-card__body-inner">
+                    <p>{card.description}</p>
+                  </div>
+                </div>
+              </button>
             </article>
           ))}
         </div>

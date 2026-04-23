@@ -786,27 +786,34 @@ input {
   gap: 8px;
 }
 
-.workflow-track span {
+.workflow-track__dot {
   width: 6px;
   height: 6px;
   border-radius: 999px;
   background: rgba(7, 28, 49, 0.16);
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    opacity 220ms ease;
 }
 
-.workflow-track span:first-child {
+.workflow-track__dot--active {
   background: #05ec62;
+  transform: scale(1.2);
 }
 
 .workflow-card {
   position: relative;
-  min-height: 92px;
-  padding: 16px 18px;
   border: 1px solid rgba(7, 28, 49, 0.1);
   border-radius: 14px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 242, 235, 0.98) 100%);
   box-shadow: 0 18px 32px rgba(5, 12, 29, 0.06);
   overflow: hidden;
+  transition:
+    border-color 260ms ease,
+    box-shadow 260ms ease,
+    transform 260ms ease;
 }
 
 .workflow-card::before {
@@ -815,17 +822,40 @@ input {
   inset: 0 auto 0 0;
   width: 5px;
   background: linear-gradient(180deg, #ffffff 0%, #dbe5f4 32%, #05ec62 100%);
+  transition: width 260ms ease, opacity 260ms ease;
 }
 
-.workflow-card--featured {
-  min-height: 186px;
+.workflow-card--active {
+  border-color: rgba(5, 236, 98, 0.26);
+  box-shadow: 0 26px 42px rgba(5, 12, 29, 0.1);
+  transform: translateY(-1px);
+}
+
+.workflow-card--active::before {
+  width: 7px;
+}
+
+.workflow-card__trigger {
+  width: 100%;
+  padding: 16px 18px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.workflow-card__trigger:focus-visible {
+  outline: 2px solid rgba(5, 236, 98, 0.7);
+  outline-offset: -2px;
 }
 
 .workflow-card__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .workflow-card__badge {
@@ -841,6 +871,7 @@ input {
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .workflow-card__step {
@@ -856,6 +887,47 @@ input {
   letter-spacing: 0;
 }
 
+.workflow-card__timer {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.workflow-card__timer svg {
+  width: 38px;
+  height: 38px;
+  transform: rotate(-90deg);
+}
+
+.workflow-card__timer-track,
+.workflow-card__timer-progress {
+  fill: none;
+  stroke-width: 3;
+}
+
+.workflow-card__timer-track {
+  stroke: rgba(7, 28, 49, 0.1);
+}
+
+.workflow-card__timer-progress {
+  stroke: #05ec62;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 100ms linear;
+}
+
+.workflow-card__timer span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #071c31;
+  font-size: 11px;
+  font-weight: 800;
+}
+
 .workflow-card h3,
 .benefit-card h3 {
   margin: 0 0 10px;
@@ -863,6 +935,21 @@ input {
   font-size: clamp(1.22rem, 2vw, 1.9rem);
   line-height: 1.08;
   letter-spacing: -0.04em;
+  color: #071c31;
+}
+
+.workflow-card__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 360ms ease;
+}
+
+.workflow-card--active .workflow-card__body {
+  grid-template-rows: 1fr;
+}
+
+.workflow-card__body-inner {
+  overflow: hidden;
 }
 
 .workflow-card p,
@@ -873,8 +960,18 @@ input {
   line-height: 1.6;
 }
 
-.workflow-card:not(.workflow-card--featured) p {
-  max-width: 210px;
+.workflow-card p {
+  max-width: 230px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 240ms ease,
+    transform 240ms ease;
+}
+
+.workflow-card--active p {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .how-it-works__bottom {
@@ -1252,8 +1349,8 @@ input {
     padding-inline: 14px;
   }
 
-  .workflow-card {
+  .workflow-card__trigger {
     padding-top: 18px;
-    padding-left: 16px;
+    padding-inline: 16px 14px;
   }
 }
