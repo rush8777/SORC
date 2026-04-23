@@ -8,7 +8,6 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
 const detailCards = [
   {
     kicker: 'Learn',
-    step: '20',
     title: 'Step-by-step guidance',
     description:
       'Move through compact lessons with clear explanations, visual cues, and a pace that never feels overwhelming.',
@@ -214,11 +213,7 @@ function HowItWorksSection() {
               >
                 <div className="workflow-card__head">
                   <span className="workflow-card__badge">{card.kicker}</span>
-                  {index === activeIndex ? (
-                    <ProgressRing remainingMs={remainingMs} />
-                  ) : card.step ? (
-                    <strong className="workflow-card__step">{card.step}</strong>
-                  ) : null}
+                  {index === activeIndex ? <ProgressRing remainingMs={remainingMs} /> : null}
                 </div>
                 <h3>{card.title}</h3>
                 <div className="workflow-card__body">
