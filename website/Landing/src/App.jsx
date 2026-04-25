@@ -3,6 +3,7 @@ import HeroContent from './components/hero/HeroContent'
 import SignupCard from './components/hero/SignupCard'
 import HowItWorksSection from './components/sections/HowItWorksSection'
 import WhatYouWillLearnSection from './components/sections/WhatYouWillLearnSection'
+import FooterSection from './components/sections/FooterSection'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           </section>
           <HowItWorksSection />
           <WhatYouWillLearnSection />
+          <FooterSection />
         </main>
       </div>
     </div>
