@@ -16,6 +16,8 @@
   --green-soft: #0fe05d;
   --button-light: #f7f7f5;
   --button-dark: #09223d;
+  --page-max-width: 1360px;
+  --page-gutter: clamp(24px, 4vw, 72px);
 }
 
 * {
@@ -30,10 +32,7 @@ body {
   margin: 0;
   min-width: 320px;
   font-family: 'Manrope', sans-serif;
-  background:
-    radial-gradient(circle at 18% 82%, rgba(43, 84, 131, 0.22), transparent 28%),
-    radial-gradient(circle at 63% 18%, rgba(31, 65, 108, 0.18), transparent 35%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+  background: #ffffff;
   color: var(--text);
 }
 
@@ -57,11 +56,27 @@ input {
   width: 100%;
 }
 
+.container {
+  width: min(100%, calc(var(--page-max-width) + (var(--page-gutter) * 2)));
+  margin: 0 auto;
+  padding-inline: var(--page-gutter);
+}
+
 .page-shell {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
   isolation: isolate;
+  background: #ffffff;
+}
+
+.page-top {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 82%, rgba(43, 84, 131, 0.22), transparent 28%),
+    radial-gradient(circle at 63% 18%, rgba(31, 65, 108, 0.18), transparent 35%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
 }
 
 .page-grid {
@@ -108,7 +123,7 @@ input {
   align-items: center;
   justify-content: space-between;
   gap: 28px;
-  padding: 22px 32px 0;
+  padding: 22px 0 0;
 }
 
 .brand {
@@ -256,7 +271,7 @@ input {
   gap: 64px;
   align-items: center;
   min-height: calc(100vh - 92px);
-  padding: 72px 64px 72px 180px;
+  padding: 72px 0;
 }
 
 .hero-copy {
@@ -501,9 +516,12 @@ input {
 .how-it-works {
   position: relative;
   z-index: 1;
-  padding: 44px 64px 120px 64px;
   background: #f7f4ef;
   color: #071c31;
+}
+
+.how-it-works__inner {
+  padding: 44px 0 120px;
 }
 
 .how-it-works__intro {
@@ -1171,9 +1189,12 @@ input {
 .what-learn {
   position: relative;
   z-index: 1;
-  padding: 112px 64px 128px 64px;
   background: #071c31;
   color: var(--text);
+}
+
+.what-learn__inner {
+  padding: 112px 0 128px;
 }
 
 .what-learn__intro {
@@ -1700,7 +1721,6 @@ input {
 @media (max-width: 1320px) {
   .site-header {
     flex-wrap: wrap;
-    padding-inline: 28px;
   }
 
   .site-nav {
@@ -1713,7 +1733,7 @@ input {
   .hero-layout {
     grid-template-columns: 1fr;
     gap: 40px;
-    padding: 56px 28px 60px;
+    padding: 56px 0 60px;
   }
 
   .hero-copy {
@@ -1725,12 +1745,12 @@ input {
     max-width: 520px;
   }
 
-  .how-it-works {
-    padding: 24px 28px 96px;
+  .how-it-works__inner {
+    padding: 24px 0 96px;
   }
 
-  .what-learn {
-    padding: 72px 28px 96px;
+  .what-learn__inner {
+    padding: 72px 0 96px;
   }
 
   .site-endcap {
@@ -1799,7 +1819,7 @@ input {
     min-height: 74px;
   }
 
-  .how-it-works {
+  .how-it-works__inner {
     padding-top: 18px;
   }
 
@@ -1856,7 +1876,7 @@ input {
   }
 
   .hero-layout {
-    padding: 44px 16px 48px;
+    padding: 44px 0 48px;
   }
 
   .hero-copy__text {
@@ -1875,12 +1895,16 @@ input {
     font-size: 1rem;
   }
 
-  .how-it-works {
-    padding: 8px 16px 72px;
+  .container {
+    padding-inline: 16px;
   }
 
-  .what-learn {
-    padding: 12px 16px 72px;
+  .how-it-works__inner {
+    padding: 8px 0 72px;
+  }
+
+  .what-learn__inner {
+    padding: 12px 0 72px;
   }
 
   .how-it-works__intro {

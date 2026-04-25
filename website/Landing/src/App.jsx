@@ -9,12 +9,16 @@ function App() {
   return (
     <div className="page-shell">
       <div className="page-shell__inner">
-        <div className="page-grid" aria-hidden="true" />
-        <Header />
         <main>
-          <section className="hero-layout">
-            <HeroContent />
-            <SignupCard />
+          <section className="page-top">
+            <div className="page-grid" aria-hidden="true" />
+            <div className="container">
+              <Header />
+              <div className="hero-layout">
+                <HeroContent />
+                <SignupCard />
+              </div>
+            </div>
           </section>
           <HowItWorksSection />
           <WhatYouWillLearnSection />

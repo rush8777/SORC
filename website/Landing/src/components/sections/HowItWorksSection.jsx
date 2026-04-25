@@ -181,61 +181,65 @@ function HowItWorksSection() {
 
   return (
     <section className="how-it-works" aria-labelledby="how-it-works-title">
-      <div className="how-it-works__intro">
-        <p className="eyebrow">How it works</p>
-        <h2 id="how-it-works-title">
-          A modern way to learn to code and develop software
-        </h2>
-      </div>
-
-      <div className="how-it-works__top">
-        <LessonPreview />
-
-        <div className="how-it-works__rail">
-          <div className="workflow-track" aria-hidden="true">
-            {detailCards.map((card, index) => (
-              <span
-                key={card.title}
-                className={index === activeIndex ? 'workflow-track__dot workflow-track__dot--active' : 'workflow-track__dot'}
-              />
-            ))}
+      <div className="container">
+        <div className="how-it-works__inner">
+          <div className="how-it-works__intro">
+            <p className="eyebrow">How it works</p>
+            <h2 id="how-it-works-title">
+              A modern way to learn to code and develop software
+            </h2>
           </div>
 
-          {detailCards.map((card, index) => (
-            <article
-              key={card.title}
-              className={`workflow-card ${index === activeIndex ? 'workflow-card--active' : ''}`.trim()}
-            >
-              <button
-                className="workflow-card__trigger"
-                type="button"
-                onClick={() => handleCardSelect(index)}
-              >
-                <div className="workflow-card__head">
-                  <span className="workflow-card__badge">{card.kicker}</span>
-                  {index === activeIndex ? <ProgressRing remainingMs={remainingMs} /> : null}
-                </div>
-                <h3>{card.title}</h3>
-                <div className="workflow-card__body">
-                  <div className="workflow-card__body-inner">
-                    <p>{card.description}</p>
-                  </div>
-                </div>
-              </button>
-            </article>
-          ))}
-        </div>
-      </div>
+          <div className="how-it-works__top">
+            <LessonPreview />
 
-      <div className="how-it-works__bottom">
-        {benefitCards.map((card) => (
-          <article key={card.title} className={`benefit-card benefit-card--${card.tone}`}>
-            <p className="benefit-card__eyebrow">{card.eyebrow}</p>
-            <BenefitIcon icon={card.icon} />
-            <h3>{card.title}</h3>
-            <p>{card.description}</p>
-          </article>
-        ))}
+            <div className="how-it-works__rail">
+              <div className="workflow-track" aria-hidden="true">
+                {detailCards.map((card, index) => (
+                  <span
+                    key={card.title}
+                    className={index === activeIndex ? 'workflow-track__dot workflow-track__dot--active' : 'workflow-track__dot'}
+                  />
+                ))}
+              </div>
+
+              {detailCards.map((card, index) => (
+                <article
+                  key={card.title}
+                  className={`workflow-card ${index === activeIndex ? 'workflow-card--active' : ''}`.trim()}
+                >
+                  <button
+                    className="workflow-card__trigger"
+                    type="button"
+                    onClick={() => handleCardSelect(index)}
+                  >
+                    <div className="workflow-card__head">
+                      <span className="workflow-card__badge">{card.kicker}</span>
+                      {index === activeIndex ? <ProgressRing remainingMs={remainingMs} /> : null}
+                    </div>
+                    <h3>{card.title}</h3>
+                    <div className="workflow-card__body">
+                      <div className="workflow-card__body-inner">
+                        <p>{card.description}</p>
+                      </div>
+                    </div>
+                  </button>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="how-it-works__bottom">
+            {benefitCards.map((card) => (
+              <article key={card.title} className={`benefit-card benefit-card--${card.tone}`}>
+                <p className="benefit-card__eyebrow">{card.eyebrow}</p>
+                <BenefitIcon icon={card.icon} />
+                <h3>{card.title}</h3>
+                <p>{card.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )

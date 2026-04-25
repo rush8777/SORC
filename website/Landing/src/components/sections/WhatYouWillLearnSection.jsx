@@ -45,46 +45,50 @@ function CourseChip({ label }) {
 function WhatYouWillLearnSection() {
   return (
     <section className="what-learn" aria-labelledby="what-learn-title">
-      <div className="what-learn__intro">
-        <p className="eyebrow">What you&apos;ll learn</p>
-        <h2 id="what-learn-title">In-demand skills for modern software development</h2>
-      </div>
+      <div className="container">
+        <div className="what-learn__inner">
+          <div className="what-learn__intro">
+            <p className="eyebrow">What you&apos;ll learn</p>
+            <h2 id="what-learn-title">In-demand skills for modern software development</h2>
+          </div>
 
-      <div className="what-learn__grid">
-        {careerCards.map((card) => (
-          <article key={card.title} className="career-card">
-            <div className="career-card__top">
-              <span className="career-card__label">Career path</span>
-              <CareerBadge accent={card.accent} />
+          <div className="what-learn__grid">
+            {careerCards.map((card) => (
+              <article key={card.title} className="career-card">
+                <div className="career-card__top">
+                  <span className="career-card__label">Career path</span>
+                  <CareerBadge accent={card.accent} />
+                </div>
+                <h3>{card.title}</h3>
+                <p>{card.description}</p>
+                <span className="career-card__foot">Beginner friendly</span>
+              </article>
+            ))}
+          </div>
+
+          <div className="course-strip">
+            <p className="course-strip__label">Courses</p>
+            <ul className="course-strip__list">
+              {courseTags.map((course) => (
+                <CourseChip key={course} label={course} />
+              ))}
+            </ul>
+          </div>
+
+          <div className="learn-quiz">
+            <div>
+              <h3>Not sure where to start?</h3>
+              <p>Take a quick quiz to find a path that fits your goals in only a few minutes.</p>
             </div>
-            <h3>{card.title}</h3>
-            <p>{card.description}</p>
-            <span className="career-card__foot">Beginner friendly</span>
-          </article>
-        ))}
-      </div>
-
-      <div className="course-strip">
-        <p className="course-strip__label">Courses</p>
-        <ul className="course-strip__list">
-          {courseTags.map((course) => (
-            <CourseChip key={course} label={course} />
-          ))}
-        </ul>
-      </div>
-
-      <div className="learn-quiz">
-        <div>
-          <h3>Not sure where to start?</h3>
-          <p>Take a quick quiz to find a path that fits your goals in only a few minutes.</p>
-        </div>
-        <Button variant="secondary">Take the quiz</Button>
-        <div className="learn-quiz__bot" aria-hidden="true">
-          <span className="learn-quiz__bot-head">
-            <span />
-            <span />
-          </span>
-          <span className="learn-quiz__bot-body" />
+            <Button variant="secondary">Take the quiz</Button>
+            <div className="learn-quiz__bot" aria-hidden="true">
+              <span className="learn-quiz__bot-head">
+                <span />
+                <span />
+              </span>
+              <span className="learn-quiz__bot-body" />
+            </div>
+          </div>
         </div>
       </div>
     </section>
