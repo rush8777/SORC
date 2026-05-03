@@ -1,3 +1,3 @@
 import { createViteConfig } from '../shared/vite/createViteConfig'
 
-export default createViteConfig('Landing')
+export default createViteConfig('Dashboard')

@@ -28,7 +28,7 @@ function HeroContent() {
       </p>
       <div className="hero-copy__actions">
         <Button>Start Learning for Free</Button>
-        <Button variant="secondary">DataCamp for Business</Button>
+        <Button variant="secondary">Download Local Agent</Button>
       </div>
       <RatingStars />
     </section>

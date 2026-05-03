@@ -23,9 +23,9 @@ function FooterSection() {
   return (
     <section className="site-endcap" aria-labelledby="site-endcap-title">
       <div className="site-endcap__cta">
-        <h2 id="site-endcap-title">Ready to see the Omnistra agent in action?</h2>
+        <h2 id="site-endcap-title">Ready to see the datacamp agent in action?</h2>
         <p>
-          Omnistra agents handle complex workflows at scale while maintaining over 90% resolution
+          datacamp agents handle complex workflows at scale while maintaining over 90% resolution
           accuracy in production.
         </p>
         <a className="site-endcap__button" href="/">
@@ -41,11 +41,11 @@ function FooterSection() {
                 <span className="footer-brand__cube footer-brand__cube--one" />
                 <span className="footer-brand__cube footer-brand__cube--two" />
               </span>
-              <span className="footer-brand__word">Omnistra</span>
+              <span className="footer-brand__word">datacamp</span>
             </a>
 
             <p>
-              Omnistra agents handle complex workflows at scale while maintaining over 90%
+              datacamp agents handle complex workflows at scale while maintaining over 90%
               resolution accuracy in production.
             </p>
 
@@ -68,7 +68,7 @@ function FooterSection() {
         </div>
 
         <div className="site-footer__bottom">
-          <p>2025 Omnistra. All rights reserved.</p>
+          <p>2025 datacamp. All rights reserved.</p>
           <ul className="site-footer__legal">
             {legalLinks.map((link) => (
               <li key={link}>
@@ -80,7 +80,7 @@ function FooterSection() {
       </footer>
 
       <span className="site-endcap__watermark" aria-hidden="true">
-        Omnistra
+        datacamp
       </span>
     </section>
   )
