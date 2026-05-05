@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Header from '@/components/header'
 import Sidebar from '@/components/sidebar'
 import AdvanceSection from '@/components/sections/advance-section'
@@ -10,22 +10,55 @@ import RecommendedSection from '@/components/sections/recommended-section'
 import DiscoverFeaturesSection from '@/components/sections/discover-features-section'
 import ProjectsSection from '@/components/sections/projects-section'
 import Footer from '@/components/footer'
+import { getEditorAppUrl } from '@shared/integration/api'
+
+type DashboardView = 'dashboard' | 'projects' | 'project-detail'
+
+type DashboardRoute = {
+  view: DashboardView
+  projectId: string | null
+}
 
 export default function Home() {
-  const [activeView, setActiveView] = useState<'dashboard' | 'projects' | 'project-detail'>('dashboard')
+  const [route, setRoute] = useState<DashboardRoute>(() => readDashboardRoute())
+
+  useEffect(() => {
+    const syncRoute = () => {
+      setRoute(readDashboardRoute())
+    }
+
+    window.addEventListener('hashchange', syncRoute)
+    syncRoute()
+
+    return () => {
+      window.removeEventListener('hashchange', syncRoute)
+    }
+  }, [])
 
   const handleSidebarNavigate = (view: 'dashboard' | 'projects') => {
-    setActiveView(view)
+    navigateToDashboardRoute(view === 'dashboard' ? '#/dashboard' : '#/projects')
+  }
+
+  const handleOpenProject = (projectId: string) => {
+    navigateToDashboardRoute(`#/projects/${projectId}`)
+  }
+
+  const handleBackToProjects = () => {
+    navigateToDashboardRoute('#/projects')
+  }
+
+  const handleOpenLesson = (projectId: string, lessonId: string) => {
+    window.location.assign(getEditorAppUrl(projectId, lessonId))
   }
 
   return (
     <div className="dashboard-page">
       <Header />
       <div className="dashboard-shell">
-        <Sidebar activeItem={activeView === 'dashboard' ? 'dashboard' : 'projects'} onNavigate={handleSidebarNavigate} />
+        <Sidebar activeItem={route.view === 'dashboard' ? 'dashboard' : 'projects'} onNavigate={handleSidebarNavigate} />
         <main className="dashboard-main">
           <div className="dashboard-content">
-            {activeView === 'dashboard' ? (
+            {route.view === 'dashboard' ? (
               <>
                 <AdvanceSection />
                 <KeepLearningSection />
@@ -33,13 +66,15 @@ export default function Home() {
                 <RecommendedSection />
                 <DiscoverFeaturesSection />
               </>
-            ) : activeView === 'projects' ? (
-              <ProjectsSection onOpenProject={() => setActiveView('project-detail')} />
+            ) : route.view === 'projects' ? (
+              <ProjectsSection onOpenProject={handleOpenProject} onOpenLesson={handleOpenLesson} />
             ) : (
               <ProjectsSection
                 showDetail
-                onOpenProject={() => setActiveView('project-detail')}
-                onBackToProjects={() => setActiveView('projects')}
+                selectedProjectId={route.projectId}
+                onOpenProject={handleOpenProject}
+                onOpenLesson={handleOpenLesson}
+                onBackToProjects={handleBackToProjects}
               />
             )}
           </div>
@@ -48,4 +83,38 @@ export default function Home() {
       <Footer />
     </div>
   )
+}
+
+function readDashboardRoute(): DashboardRoute {
+  if (typeof window === 'undefined') {
+    return { view: 'dashboard', projectId: null }
+  }
+
+  const normalizedHash = window.location.hash || '#/dashboard'
+  const projectMatch = normalizedHash.match(/^#\/projects\/([^/]+)$/)
+  if (projectMatch?.[1]) {
+    return {
+      view: 'project-detail',
+      projectId: decodeURIComponent(projectMatch[1]),
+    }
+  }
+
+  if (normalizedHash === '#/projects') {
+    return { view: 'projects', projectId: null }
+  }
+
+  return { view: 'dashboard', projectId: null }
+}
+
+function navigateToDashboardRoute(hash: string) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  if (window.location.hash === hash) {
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+    return
+  }
+
+  window.location.hash = hash
 }

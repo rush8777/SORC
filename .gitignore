@@ -31,3 +31,7 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+
+#Agent Backend
+website/agent backend/

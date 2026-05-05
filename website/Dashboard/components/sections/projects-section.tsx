@@ -1,36 +1,24 @@
 'use client'
 
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowUpRight,
   Bot,
   CheckCircle2,
-  ChevronDown,
   ChevronRight,
   Clock3,
   Code2,
   EllipsisVertical,
   FileText,
-  Filter,
   FolderOpen,
-  ListFilter,
-  Search,
-  Settings,
+  Filter,
   Sparkles,
   Users,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-
-type ProjectDetail = {
-  title: string
-  description: string
-  visibility: string
-  progress: number
-  technologies: string[]
-  updated: string
-  files: string
-  contributors: string
-}
+import { analyzeProject, fetchProjects } from '@shared/integration/api'
+import type { AnalyzeProjectPayload, LearningProject, ProjectLesson, UploadedProjectFile } from '@shared/integration/types'
 
 type LessonCard = {
   eyebrow: string
@@ -41,6 +29,7 @@ type LessonCard = {
   duration: string
   files: string
   tone: 'green' | 'blue' | 'amber' | 'violet'
+  lessonId: string
 }
 
 type LessonGroup = {
@@ -50,93 +39,7 @@ type LessonGroup = {
   cards: LessonCard[]
 }
 
-const projectStats = [
-  {
-    label: 'Total projects',
-    value: '6',
-    note: 'Active workspace portfolio',
-    icon: FolderOpen,
-    tone: 'neutral',
-  },
-  {
-    label: 'In progress',
-    value: '3',
-    note: 'Shipping this week',
-    icon: Clock3,
-    tone: 'warning',
-  },
-  {
-    label: 'Completed',
-    value: '2',
-    note: 'Ready to showcase',
-    icon: CheckCircle2,
-    tone: 'success',
-  },
-  {
-    label: 'AI assisted',
-    value: '4',
-    note: 'Built with copilots and reviews',
-    icon: Bot,
-    tone: 'accent',
-  },
-] as const
-
 const projectTabs = ['All projects', 'In progress', 'Completed', 'Drafts'] as const
-
-const featuredProject: ProjectDetail = {
-  title: 'SaaS Boilerplate',
-  description:
-    'A full-stack Next.js SaaS starter kit with authentication, payments, team management, and analytics.',
-  visibility: 'Private',
-  progress: 38,
-  technologies: ['Next.js', 'TypeScript', 'PostgreSQL', 'Tailwind CSS'],
-  updated: 'Updated 2 days ago',
-  files: '428 files',
-  contributors: '24 contributors',
-}
-
-const projects = [
-  {
-    title: 'AI Code Explainer',
-    description: 'Turns confusing implementation details into plain-language guidance, examples, and onboarding notes for the team.',
-    tag: 'Python',
-    status: 'In progress',
-    progress: 65,
-    updated: 'Updated 2 hours ago',
-    action: 'Continue',
-    tone: 'accent',
-  },
-  {
-    title: 'Codebase Q&A Assistant',
-    description: 'Answers repo questions with grounded references, architecture notes, and quick links for faster contributor ramp-up.',
-    tag: 'TypeScript',
-    status: 'In progress',
-    progress: 40,
-    updated: 'Updated yesterday',
-    action: 'Continue',
-    tone: 'blue',
-  },
-  {
-    title: 'API Documentation Generator',
-    description: 'Generates polished API summaries, endpoint notes, and teammate-friendly implementation examples from source files.',
-    tag: 'JavaScript',
-    status: 'Completed',
-    progress: 100,
-    updated: 'Completed 3 days ago',
-    action: 'View project',
-    tone: 'success',
-  },
-  {
-    title: 'Frontend Component Builder',
-    description: 'Builds reusable UI pieces with preview-ready states, design notes, and implementation handoff details.',
-    tag: 'HTML & CSS',
-    status: 'In progress',
-    progress: 25,
-    updated: 'Updated 5 hours ago',
-    action: 'Continue',
-    tone: 'violet',
-  },
-] as const
 
 const ideas = [
   {
@@ -156,110 +59,116 @@ const ideas = [
   },
 ] as const
 
-const learningGroups: LessonGroup[] = [
-  {
-    title: 'Fundamentals',
-    subtitle: 'Start here to understand the basics of this codebase.',
-    count: 6,
-    cards: [
-      {
-        eyebrow: 'Fundamentals',
-        title: 'Understand Project Structure',
-        description: 'Get a high-level overview of the folder structure and what each part of the project does.',
-        stats: 'Project lesson',
-        level: 'Beginner Friendly',
-        duration: '8 min',
-        files: '12 files',
-        tone: 'green',
-      },
-      {
-        eyebrow: 'Fundamentals',
-        title: 'How the App Starts',
-        description: 'Learn what happens when the application starts and how requests are handled.',
-        stats: 'Project lesson',
-        level: 'Beginner Friendly',
-        duration: '7 min',
-        files: '6 files',
-        tone: 'green',
-      },
-      {
-        eyebrow: 'Fundamentals',
-        title: 'Main Technologies Used',
-        description: 'Explore the core technologies, libraries, and tools that power this project.',
-        stats: 'Project lesson',
-        level: 'Beginner Friendly',
-        duration: '6 min',
-        files: '5 files',
-        tone: 'green',
-      },
-    ],
-  },
-  {
-    title: 'Layers of the Codebase',
-    subtitle: 'Learn the architecture layer by layer.',
-    count: 8,
-    cards: [
-      {
-        eyebrow: 'Frontend Layer',
-        title: 'Components Architecture',
-        description: 'Understand how UI components are structured, reused, and organized.',
-        stats: 'Architecture lesson',
-        level: 'Intermediate',
-        duration: '10 min',
-        files: '16 files',
-        tone: 'blue',
-      },
-      {
-        eyebrow: 'Backend Layer',
-        title: 'API Routes Design',
-        description: 'See how API routes are structured and how requests flow through the system.',
-        stats: 'Architecture lesson',
-        level: 'Intermediate',
-        duration: '12 min',
-        files: '14 files',
-        tone: 'blue',
-      },
-      {
-        eyebrow: 'Data Layer',
-        title: 'Database Schema',
-        description: 'Explore database tables, relationships, and how data is organized.',
-        stats: 'Architecture lesson',
-        level: 'Beginner Friendly',
-        duration: '9 min',
-        files: '7 files',
-        tone: 'blue',
-      },
-      {
-        eyebrow: 'Infra Layer',
-        title: 'Environment & Config',
-        description: 'Understand environment variables, config files, and deployment setup.',
-        stats: 'Architecture lesson',
-        level: 'Beginner Friendly',
-        duration: '6 min',
-        files: '7 files',
-        tone: 'blue',
-      },
-    ],
-  },
-]
-
 type ProjectsSectionProps = {
-  onOpenProject: () => void
+  onOpenProject: (projectId: string) => void
+  onOpenLesson: (projectId: string, lessonId: string) => void
   onBackToProjects?: () => void
   showDetail?: boolean
+  selectedProjectId?: string | null
 }
 
 export default function ProjectsSection({
   onOpenProject,
+  onOpenLesson,
   onBackToProjects,
   showDetail = false,
+  selectedProjectId = null,
 }: ProjectsSectionProps) {
+  const [projects, setProjects] = useState<LearningProject[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadProjects = async () => {
+      try {
+        const nextProjects = await fetchProjects()
+        if (!cancelled) {
+          setProjects(nextProjects)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          window.alert(error instanceof Error ? error.message : 'Failed to load projects.')
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadProjects()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const selectedProject = useMemo(
+    () => projects.find((project) => project.id === selectedProjectId) ?? null,
+    [projects, selectedProjectId],
+  )
+
+  const projectStats = useMemo(() => buildProjectStats(projects), [projects])
+
+  const handleCreateProject = async () => {
+    try {
+      let selection = await pickProjectFolderFromDirectoryHandle()
+      if (!selection) {
+        selection = await pickProjectFolder(fileInputRef.current)
+      }
+
+      if (!selection) {
+        return
+      }
+
+      setIsAnalyzing(true)
+      const createdProject = await analyzeProject(selection)
+      setProjects((currentProjects) => [createdProject, ...currentProjects.filter((project) => project.id !== createdProject.id)])
+      onOpenProject(createdProject.id)
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return
+      }
+
+      window.alert(error instanceof Error ? error.message : 'Unable to analyze the selected project.')
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
   if (showDetail) {
-    return <ProjectLearningDetail onBackToProjects={onBackToProjects ?? (() => {})} />
+    return (
+      <>
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          style={{ display: 'none' }}
+          {...({ webkitdirectory: '', directory: '' } as any)}
+        />
+        <ProjectLearningDetail
+          project={selectedProject}
+          loading={loading}
+          onBackToProjects={onBackToProjects ?? (() => {})}
+          onOpenLesson={onOpenLesson}
+        />
+      </>
+    )
   }
 
   return (
     <section className="dashboard-section dashboard-projects">
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        style={{ display: 'none' }}
+        {...({ webkitdirectory: '', directory: '' } as any)}
+      />
+
       <div className="dashboard-section__header dashboard-projects__hero">
         <div>
           <p className="dashboard-card__eyebrow">Projects workspace</p>
@@ -269,9 +178,9 @@ export default function ProjectsSection({
           </p>
         </div>
 
-        <Button className="dashboard-projects__hero-action">
+        <Button className="dashboard-projects__hero-action" onClick={handleCreateProject} disabled={isAnalyzing}>
           <Sparkles size={16} />
-          New project
+          {isAnalyzing ? 'Analyzing project...' : 'New project'}
         </Button>
       </div>
 
@@ -324,54 +233,67 @@ export default function ProjectsSection({
           </div>
 
           <div className="dashboard-projects__list">
-            {projects.map((project) => (
-              <article key={project.title} className="dashboard-project-item">
-                <div className="dashboard-project-item__identity">
-                  <div className={`dashboard-project-item__badge dashboard-project-item__badge--${project.tone}`}>
-                    <Code2 size={18} />
-                  </div>
-
-                  <div className="dashboard-project-item__content">
-                    <div className="dashboard-project-item__title-row">
-                      <h3 className="dashboard-project-item__title">{project.title}</h3>
-                      <span className={`dashboard-project-item__status dashboard-project-item__status--${project.status.toLowerCase().replace(' ', '-')}`}>
-                        {project.status}
-                      </span>
-                    </div>
-
-                    <p className="dashboard-project-item__description">{project.description}</p>
-
-                    <div className="dashboard-project-item__meta">
-                      <span className="dashboard-project-item__pill">{project.tag}</span>
-                      <span>{project.updated}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="dashboard-project-item__aside">
-                  <button type="button" className="dashboard-project-item__menu" aria-label={`More options for ${project.title}`}>
-                    <EllipsisVertical size={18} />
-                  </button>
-
-                  <div className="dashboard-project-item__progress">
-                    <div className="dashboard-project-item__progress-row">
-                      <span>Progress</span>
-                      <strong>{project.progress}%</strong>
-                    </div>
-                    <div className="dashboard-project-item__progress-bar" aria-hidden="true">
-                      <span style={{ width: `${project.progress}%` }} />
-                    </div>
-                  </div>
-
-                  <Button
-                    className={project.progress === 100 ? 'dashboard-project-item__action dashboard-project-item__action--secondary' : 'dashboard-project-item__action'}
-                    onClick={onOpenProject}
-                  >
-                    {project.action}
-                  </Button>
+            {loading ? (
+              <article className="dashboard-project-item">
+                <div className="dashboard-project-item__content">
+                  <p className="dashboard-project-item__description">Loading projects...</p>
                 </div>
               </article>
-            ))}
+            ) : projects.length === 0 ? (
+              <article className="dashboard-project-item">
+                <div className="dashboard-project-item__content">
+                  <p className="dashboard-project-item__description">
+                    Create your first project to generate understanding and data flow lessons.
+                  </p>
+                </div>
+              </article>
+            ) : (
+              projects.map((project) => (
+                <article key={project.id} className="dashboard-project-item">
+                  <div className="dashboard-project-item__identity">
+                    <div className="dashboard-project-item__badge dashboard-project-item__badge--accent">
+                      <Code2 size={18} />
+                    </div>
+
+                    <div className="dashboard-project-item__content">
+                      <div className="dashboard-project-item__title-row">
+                        <h3 className="dashboard-project-item__title">{project.name}</h3>
+                        <span className="dashboard-project-item__status dashboard-project-item__status--in-progress">
+                          Ready
+                        </span>
+                      </div>
+
+                      <p className="dashboard-project-item__description">{project.description}</p>
+
+                      <div className="dashboard-project-item__meta">
+                        <span className="dashboard-project-item__pill">{project.framework}</span>
+                        <span>{formatUpdatedLabel(project.updatedAt)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="dashboard-project-item__aside">
+                    <button type="button" className="dashboard-project-item__menu" aria-label={`More options for ${project.name}`}>
+                      <EllipsisVertical size={18} />
+                    </button>
+
+                    <div className="dashboard-project-item__progress">
+                      <div className="dashboard-project-item__progress-row">
+                        <span>Progress</span>
+                        <strong>{project.progress}%</strong>
+                      </div>
+                      <div className="dashboard-project-item__progress-bar" aria-hidden="true">
+                        <span style={{ width: `${project.progress}%` }} />
+                      </div>
+                    </div>
+
+                    <Button className="dashboard-project-item__action" onClick={() => onOpenProject(project.id)}>
+                      Open project
+                    </Button>
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -417,90 +339,103 @@ export default function ProjectsSection({
 }
 
 function ProjectLearningDetail({
+  loading,
+  project,
   onBackToProjects,
+  onOpenLesson,
 }: {
+  loading: boolean
+  project: LearningProject | null
   onBackToProjects: () => void
+  onOpenLesson: (projectId: string, lessonId: string) => void
 }) {
+  const learningGroups = useMemo(() => buildLearningGroups(project?.lessons ?? []), [project])
+
+  if (loading) {
+    return (
+      <section className="dashboard-section dashboard-project-detail">
+        <button type="button" className="dashboard-project-detail__back" onClick={onBackToProjects}>
+          <ArrowLeft size={16} />
+          Projects
+        </button>
+        <p className="dashboard-card__muted">Loading project...</p>
+      </section>
+    )
+  }
+
+  if (!project) {
+    return (
+      <section className="dashboard-section dashboard-project-detail">
+        <button type="button" className="dashboard-project-detail__back" onClick={onBackToProjects}>
+          <ArrowLeft size={16} />
+          Projects
+        </button>
+        <p className="dashboard-card__muted">This project could not be found.</p>
+      </section>
+    )
+  }
+
   return (
     <section className="dashboard-section dashboard-project-detail">
       <button type="button" className="dashboard-project-detail__back" onClick={onBackToProjects}>
         <ArrowLeft size={16} />
-        Back to projects
+        Projects
       </button>
 
-      <div className="dashboard-card dashboard-project-detail__hero">
-        <div className="dashboard-card__body dashboard-project-detail__hero-body">
-          <div className="dashboard-project-detail__hero-main">
-            <div className="dashboard-project-detail__hero-badge">
-              <Code2 size={26} />
-            </div>
-
-            <div className="dashboard-project-detail__hero-copy">
-              <div className="dashboard-project-detail__hero-title-row">
-                <h2 className="dashboard-section__title dashboard-project-detail__title">
-                  {featuredProject.title}
-                </h2>
-                <span className="dashboard-project-detail__privacy">{featuredProject.visibility}</span>
-              </div>
-
-              <p className="dashboard-project-detail__description">{featuredProject.description}</p>
-
-              <div className="dashboard-project-detail__techs">
-                {featuredProject.technologies.map((technology) => (
-                  <span key={technology} className="dashboard-project-detail__tech">
-                    {technology}
-                  </span>
-                ))}
-              </div>
-
-              <div className="dashboard-project-detail__meta">
-                <span>{featuredProject.updated}</span>
-                <span>{featuredProject.files}</span>
-                <span>{featuredProject.contributors}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-project-detail__progress-panel">
-            <div className="dashboard-project-detail__progress-header">
-              <span>Your progress</span>
-              <strong>{featuredProject.progress}%</strong>
-            </div>
-            <div className="dashboard-project-detail__progress-bar" aria-hidden="true">
-              <span style={{ width: `${featuredProject.progress}%` }} />
-            </div>
-            <Button className="dashboard-project-detail__primary">
-              Continue learning
-            </Button>
-            <Button className="dashboard-project-detail__secondary" variant="secondary">
-              <Settings size={16} />
-              Project settings
-            </Button>
-          </div>
-        </div>
+      <div className="dashboard-project-detail__breadcrumb" aria-label="Breadcrumb">
+        <span>Catalog</span>
+        <span>/</span>
+        <span>{project.name}</span>
       </div>
 
-      <div className="dashboard-project-detail__toolbar">
-        <label className="dashboard-project-detail__search" aria-label="Search lessons in this project">
-          <Search size={16} />
-          <input type="text" placeholder="Search lessons in this project" />
-        </label>
+      <div className="dashboard-project-detail__hero">
+        <div className="dashboard-project-detail__hero-top">
+          <div className="dashboard-project-detail__hero-copy">
+            <h2 className="dashboard-project-detail__title">{project.name}</h2>
+            <p className="dashboard-project-detail__lede">
+              {project.description}
+            </p>
+            <div className="dashboard-project-detail__meta">
+              <span>{project.visibility}</span>
+              <span>{formatUpdatedLabel(project.updatedAt)}</span>
+              <span>{project.files}</span>
+              <span>{project.contributors}</span>
+            </div>
+          </div>
+        </div>
 
-        <div className="dashboard-project-detail__toolbar-actions">
-          <button type="button" className="dashboard-project-detail__filter">
-            All categories
-            <ChevronDown size={16} />
-          </button>
-          <button type="button" className="dashboard-project-detail__filter">
-            Sort: Most relevant
-            <ChevronDown size={16} />
-          </button>
-          <button type="button" className="dashboard-project-detail__icon-button" aria-label="Grid view">
-            <Filter size={16} />
-          </button>
-          <button type="button" className="dashboard-project-detail__icon-button" aria-label="List view">
-            <ListFilter size={16} />
-          </button>
+        <div className="dashboard-project-detail__content">
+          <div className="dashboard-project-detail__about">
+            <h3>About {project.name}</h3>
+            <p>
+              {project.description}
+            </p>
+            <a href="#" className="dashboard-inline-link">
+              Tell me more
+              <ArrowUpRight size={16} />
+            </a>
+          </div>
+
+          <div className="dashboard-project-detail__topics">
+            <h3>Related topics</h3>
+            <div className="dashboard-project-detail__topics-grid" role="list" aria-label="Related topics">
+              {project.technologies.map((technology) => (
+                <a key={technology} href="#" className="dashboard-project-detail__topic" role="listitem">
+                  {technology}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="dashboard-project-detail__progress-strip">
+          <div className="dashboard-project-detail__progress-header">
+            <span>Progress</span>
+            <strong>{project.progress}%</strong>
+          </div>
+          <div className="dashboard-project-detail__progress-bar" aria-hidden="true">
+            <span style={{ width: `${project.progress}%` }} />
+          </div>
         </div>
       </div>
 
@@ -521,7 +456,7 @@ function ProjectLearningDetail({
             <div className={`dashboard-grid ${group.cards.length === 4 ? 'dashboard-grid--project-lessons-four' : 'dashboard-grid--project-lessons-three'}`}>
               {group.cards.map((card) => (
                 <article
-                  key={`${group.title}-${card.title}`}
+                  key={`${group.title}-${card.lessonId}`}
                   className={`dashboard-recommendation dashboard-project-lesson dashboard-project-lesson--${card.tone}`}
                 >
                   <div className="dashboard-recommendation__body">
@@ -546,7 +481,7 @@ function ProjectLearningDetail({
                     </div>
                   </div>
 
-                  <Button className="dashboard-recommendation__action" variant="ghost">
+                  <Button className="dashboard-recommendation__action" variant="ghost" onClick={() => onOpenLesson(project.id, card.lessonId)}>
                     Open lesson
                   </Button>
                 </article>
@@ -555,26 +490,263 @@ function ProjectLearningDetail({
           </section>
         ))}
       </div>
-
-      <div className="dashboard-card dashboard-project-detail__path-card">
-        <div className="dashboard-card__body dashboard-project-detail__path-body">
-          <div className="dashboard-project-detail__path-copy">
-            <div className="dashboard-project-detail__path-icon">
-              <Sparkles size={18} />
-            </div>
-            <div>
-              <h3 className="dashboard-project-detail__path-title">AI generated learning path</h3>
-              <p className="dashboard-card__muted">
-                Not sure where to start? Let AI recommend the best path for your next session.
-              </p>
-            </div>
-          </div>
-
-          <Button className="dashboard-project-detail__path-action" variant="secondary">
-            Generate my path
-          </Button>
-        </div>
-      </div>
     </section>
   )
+}
+
+function buildProjectStats(projects: LearningProject[]) {
+  const completedProjects = projects.filter((project) => project.progress >= 100).length
+  const inProgressProjects = projects.filter((project) => project.progress < 100).length
+
+  return [
+    {
+      label: 'Total projects',
+      value: String(projects.length),
+      note: 'Active workspace portfolio',
+      icon: FolderOpen,
+      tone: 'neutral',
+    },
+    {
+      label: 'In progress',
+      value: String(inProgressProjects),
+      note: 'Projects with completed lesson progress',
+      icon: Clock3,
+      tone: 'warning',
+    },
+    {
+      label: 'Completed',
+      value: String(completedProjects),
+      note: 'Lesson paths finished end to end',
+      icon: CheckCircle2,
+      tone: 'success',
+    },
+    {
+      label: 'AI assisted',
+      value: String(projects.length),
+      note: 'Projects analyzed by the learning agent',
+      icon: Bot,
+      tone: 'accent',
+    },
+  ] as const
+}
+
+function buildLearningGroups(lessons: ProjectLesson[]): LessonGroup[] {
+  const fundamentalCards = lessons
+    .filter((lesson) => lesson.kind === 'understanding' || lesson.kind === 'data-flow')
+    .map(mapLessonToCard)
+  const additionalCards = lessons
+    .filter((lesson) => lesson.kind !== 'understanding' && lesson.kind !== 'data-flow')
+    .map(mapLessonToCard)
+
+  return [
+    {
+      title: 'Fundamentals',
+      subtitle: 'Start here to understand the basics of this codebase.',
+      count: fundamentalCards.length,
+      cards: fundamentalCards,
+    },
+    {
+      title: 'More Lessons',
+      subtitle: 'Additional generated lessons available for this project.',
+      count: additionalCards.length,
+      cards: additionalCards,
+    },
+  ].filter((group) => group.cards.length > 0)
+}
+
+function mapLessonToCard(lesson: ProjectLesson): LessonCard {
+  return {
+    eyebrow: lesson.eyebrow,
+    title: lesson.title,
+    description: lesson.description,
+    stats: lesson.stats,
+    level: lesson.level,
+    duration: lesson.duration,
+    files: lesson.files,
+    tone: lesson.tone,
+    lessonId: lesson.id,
+  }
+}
+
+async function pickProjectFolder(fileInput: HTMLInputElement | null): Promise<AnalyzeProjectPayload | null> {
+  if (!fileInput) {
+    throw new Error('Folder picking is not supported in this browser.')
+  }
+
+  return new Promise<AnalyzeProjectPayload | null>((resolve, reject) => {
+    const cleanup = () => {
+      fileInput.removeEventListener('change', onChange)
+      window.removeEventListener('focus', onFocus)
+    }
+
+    const onChange = async () => {
+      cleanup()
+
+      try {
+        const files = fileInput.files
+        fileInput.value = ''
+        if (!files?.length) {
+          resolve(null)
+          return
+        }
+
+        const payload = await buildProjectPayloadFromFileList(files)
+        resolve(payload)
+      } catch (error) {
+        reject(error)
+      }
+    }
+
+    const onFocus = () => {
+      window.setTimeout(() => {
+        if (fileInput.files?.length) {
+          return
+        }
+
+        cleanup()
+        resolve(null)
+      }, 0)
+    }
+
+    fileInput.addEventListener('change', onChange, { once: true })
+    window.addEventListener('focus', onFocus, { once: true })
+    fileInput.click()
+  })
+}
+
+async function pickProjectFolderFromDirectoryHandle(): Promise<AnalyzeProjectPayload | null> {
+  const directoryPicker = (window as any).showDirectoryPicker
+  if (typeof directoryPicker !== 'function') {
+    return null
+  }
+
+  try {
+    const handle = await directoryPicker()
+    return buildProjectPayloadFromDirectoryHandle(handle)
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return null
+    }
+
+    throw error
+  }
+}
+
+async function buildProjectPayloadFromDirectoryHandle(handle: any): Promise<AnalyzeProjectPayload> {
+  const files: UploadedProjectFile[] = []
+
+  await readDirectoryEntries(handle, '', files)
+
+  if (files.length === 0) {
+    throw new Error('The selected folder does not contain readable files.')
+  }
+
+  return {
+    projectName: handle.name,
+    rootPath: handle.name,
+    files,
+  }
+}
+
+async function readDirectoryEntries(handle: any, currentPath: string, files: UploadedProjectFile[]): Promise<void> {
+  for await (const entry of handle.values()) {
+    const entryPath = currentPath ? `${currentPath}/${entry.name}` : entry.name
+    if (shouldSkipPath(entryPath)) {
+      continue
+    }
+
+    if (entry.kind === 'directory') {
+      await readDirectoryEntries(entry, entryPath, files)
+      continue
+    }
+
+    const file = await entry.getFile()
+    files.push({
+      path: entryPath,
+      content: await file.text(),
+    })
+  }
+}
+
+async function buildProjectPayloadFromFileList(fileList: FileList): Promise<AnalyzeProjectPayload> {
+  const files = Array.from(fileList).filter((file) => !shouldSkipPath(file.webkitRelativePath || file.name))
+  if (files.length === 0) {
+    throw new Error('The selected folder does not contain readable files.')
+  }
+
+  const projectName = getProjectNameFromRelativePath(files[0]?.webkitRelativePath || files[0]?.name || 'project')
+
+  const uploadedFiles = await Promise.all(
+    files.map(async (file) => ({
+      path: stripRootDirectory(file.webkitRelativePath || file.name, projectName),
+      content: await file.text(),
+    })),
+  )
+
+  const rootPath = getRootPathFromFileList(files)
+
+  return {
+    projectName,
+    rootPath,
+    files: uploadedFiles,
+  }
+}
+
+function getProjectNameFromRelativePath(relativePath: string): string {
+  return relativePath.split('/')[0] || 'project'
+}
+
+function stripRootDirectory(relativePath: string, projectName: string): string {
+  const normalized = relativePath.replace(/\\/g, '/')
+  const prefix = `${projectName}/`
+  if (normalized.startsWith(prefix)) {
+    return normalized.slice(prefix.length)
+  }
+
+  return normalized
+}
+
+function getRootPathFromFileList(files: File[]): string {
+  const firstFile = files[0] as File & { path?: string }
+  if (firstFile?.path) {
+    const normalized = firstFile.path.replace(/\\/g, '/')
+    const fileName = firstFile.name
+    return normalized.slice(0, Math.max(0, normalized.length - fileName.length)).replace(/\/+$/, '')
+  }
+
+  return getProjectNameFromRelativePath(files[0]?.webkitRelativePath || files[0]?.name || 'project')
+}
+
+function shouldSkipPath(filePath: string): boolean {
+  const normalized = filePath.replace(/\\/g, '/')
+  return (
+    normalized.includes('/node_modules/') ||
+    normalized.startsWith('node_modules/') ||
+    normalized.includes('/.git/') ||
+    normalized.startsWith('.git/') ||
+    normalized.includes('/dist/') ||
+    normalized.startsWith('dist/') ||
+    normalized.includes('/build/') ||
+    normalized.startsWith('build/') ||
+    normalized.includes('/.next/') ||
+    normalized.startsWith('.next/')
+  )
+}
+
+function formatUpdatedLabel(isoTimestamp: string): string {
+  const updatedAt = new Date(isoTimestamp)
+  const diffMs = Date.now() - updatedAt.getTime()
+  const minute = 60 * 1000
+  const hour = 60 * minute
+  const day = 24 * hour
+
+  if (diffMs < hour) {
+    return `Updated ${Math.max(1, Math.floor(diffMs / minute))} minutes ago`
+  }
+
+  if (diffMs < day) {
+    return `Updated ${Math.max(1, Math.floor(diffMs / hour))} hours ago`
+  }
+
+  return `Updated ${Math.max(1, Math.floor(diffMs / day))} days ago`
 }

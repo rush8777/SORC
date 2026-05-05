@@ -1,96 +1,160 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { mockLesson } from '@/lib/lesson-context'
+import { Toaster } from '@/components/ui/toaster'
+import { toast } from '@/hooks/use-toast'
 import { CenterContent } from './lesson/center-content'
 import { RightSidebar } from './lesson/right-sidebar'
+import { fetchLesson } from '@shared/integration/api'
+import type { LessonContent } from '@shared/integration/types'
 
 export function LessonEditor() {
-  const [currentStepIndex, setCurrentStepIndex] = useState(mockLesson.currentStepIndex)
+  const [lesson, setLesson] = useState<LessonContent | null>(null)
+  const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [notes, setNotes] = useState('')
-  const [completedSteps, setCompletedSteps] = useState(
-    mockLesson.steps.map(s => s.completed)
-  )
-  const [highlightedSymbol, setHighlightedSymbol] = useState<string | null>(null)
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [completedSteps, setCompletedSteps] = useState<boolean[]>([])
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const currentStep = mockLesson.steps[currentStepIndex]
+  useEffect(() => {
+    let cancelled = false
+
+    const loadLesson = async () => {
+      try {
+        const params = new URLSearchParams(window.location.search)
+        const projectId = params.get('projectId')
+        const lessonId = params.get('lessonId')
+
+        if (!projectId || !lessonId) {
+          throw new Error('Missing project or lesson selection in the URL.')
+        }
+
+        const payload = await fetchLesson(projectId, lessonId)
+        if (cancelled) {
+          return
+        }
+
+        setLesson(payload.lesson.lesson)
+        setCurrentStepIndex(payload.lesson.lesson.currentStepIndex)
+        setCompletedSteps(payload.lesson.lesson.steps.map((step) => step.completed))
+      } catch (nextError) {
+        if (cancelled) {
+          return
+        }
+
+        const message = nextError instanceof Error ? nextError.message : 'Failed to load lesson.'
+        setError(message)
+        toast({
+          title: 'Lesson load failed',
+          description: message,
+          variant: 'destructive',
+        })
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadLesson()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const currentStep = useMemo(() => {
+    if (!lesson) {
+      return null
+    }
+
+    return lesson.steps[currentStepIndex] ?? lesson.steps[0] ?? null
+  }, [currentStepIndex, lesson])
+
   const completionCount = completedSteps.filter(Boolean).length
 
   const handleStepClick = (index: number) => {
     if (index < currentStepIndex + 1) {
       setCurrentStepIndex(index)
-      setShowSuccess(false)
     }
   }
 
   const handleNextStep = () => {
-    if (currentStepIndex < mockLesson.steps.length - 1) {
+    if (lesson && currentStepIndex < lesson.steps.length - 1) {
       const newCompleted = [...completedSteps]
       newCompleted[currentStepIndex] = true
       setCompletedSteps(newCompleted)
       setCurrentStepIndex(currentStepIndex + 1)
-      setShowSuccess(false)
-      setHighlightedSymbol(null)
     }
   }
 
   const handlePrevStep = () => {
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1)
-      setShowSuccess(false)
-      setHighlightedSymbol(null)
     }
   }
 
-  const handleSymbolClick = (symbol: string) => {
-    setHighlightedSymbol(symbol)
-    if (symbol === currentStep.highlightedSymbol) {
-      setShowSuccess(true)
-    }
+  if (loading) {
+    return (
+      <>
+        <div className="h-screen bg-background flex items-center justify-center text-sm text-muted-foreground">
+          Loading lesson...
+        </div>
+        <Toaster />
+      </>
+    )
+  }
+
+  if (error || !lesson || !currentStep) {
+    return (
+      <>
+        <div className="h-screen bg-background flex items-center justify-center text-sm text-muted-foreground">
+          {error || 'Lesson could not be loaded.'}
+        </div>
+        <Toaster />
+      </>
+    )
   }
 
   return (
-    <div className="h-screen bg-background flex overflow-hidden">
-      {/* Center Content */}
-      <motion.div
-        className="flex-1 flex flex-col overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
-        <CenterContent
-          lesson={mockLesson}
-          currentStep={currentStep}
-          currentStepIndex={currentStepIndex}
-          totalSteps={mockLesson.steps.length}
-          showSuccess={showSuccess}
-          highlightedSymbol={highlightedSymbol}
-          onSymbolClick={handleSymbolClick}
-          onNextStep={handleNextStep}
-          onPrevStep={handlePrevStep}
-        />
-      </motion.div>
+    <>
+      <div className="h-screen bg-background flex overflow-hidden">
+        <motion.div
+          className="flex-1 flex flex-col overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <CenterContent
+            lesson={lesson}
+            currentStep={currentStep}
+            currentStepIndex={currentStepIndex}
+            totalSteps={lesson.steps.length}
+            onNextStep={handleNextStep}
+            onPrevStep={handlePrevStep}
+          />
+        </motion.div>
 
-      {/* Right Sidebar */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <RightSidebar
-          lesson={mockLesson}
-          completionCount={completionCount}
-          notes={notes}
-          onNotesChange={setNotes}
-          learningObjectives={mockLesson.learningObjectives}
-          completedSteps={completedSteps}
-          isOpen={rightSidebarOpen}
-          onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
-        />
-      </motion.div>
-    </div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <RightSidebar
+            lesson={lesson}
+            completionCount={completionCount}
+            notes={notes}
+            onNotesChange={setNotes}
+            learningObjectives={lesson.learningObjectives}
+            completedSteps={completedSteps}
+            isOpen={rightSidebarOpen}
+            onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
+          />
+        </motion.div>
+      </div>
+      <Toaster />
+    </>
   )
 }
