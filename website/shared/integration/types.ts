@@ -77,3 +77,138 @@ export type AnalyzeProjectPayload = {
   rootPath?: string;
   files?: UploadedProjectFile[];
 };
+
+export type AgentChatPayload = {
+  message: string;
+  verbose?: boolean;
+  workspaceRoot: string;
+};
+
+export type AgentChatResult = {
+  reply: string;
+  runId: string;
+  summary: string | null;
+};
+
+export type PlaygroundChallengeDifficulty = "beginner" | "intermediate" | "hard";
+export type PlaygroundPreferredLanguage = string;
+
+export type PlaygroundLayerSummary = {
+  description: string;
+  entryPoints: string[];
+  fileCount: number;
+  id: string;
+  importanceScore: number;
+  name: string;
+};
+
+export type PlaygroundExercise = {
+  concept: string;
+  expectedLogic: string[];
+  goal: string;
+  hints: string[];
+  id: string;
+  task: string;
+  title: string;
+};
+
+export type PlaygroundCodeFile = {
+  content: string;
+  language: string;
+  path: string;
+};
+
+export type PlaygroundLessonStep = {
+  callout: string;
+  checkpoints: string[];
+  difficulty: PlaygroundChallengeDifficulty;
+  id: string;
+  kind: "lesson";
+  instructionMarkdown: string;
+  objective: string;
+  title: string;
+  teachingMarkdown: string;
+  visual: {
+    bullets: string[];
+    subtitle: string;
+    title: string;
+  };
+};
+
+export type PlaygroundChallengeStep = {
+  assistantNotes: string[];
+  code: {
+    activeFilePath: string;
+    files: PlaygroundCodeFile[];
+  };
+  difficulty: PlaygroundChallengeDifficulty;
+  exercise: PlaygroundExercise;
+  id: string;
+  kind: "challenge";
+  instructionMarkdown: string;
+  objective: string;
+  shellLines: string[];
+  title: string;
+  teachingMarkdown: string;
+};
+
+export type PlaygroundStep = PlaygroundLessonStep | PlaygroundChallengeStep;
+
+export type PlaygroundSession = {
+  architectureNotes: string[];
+  createdAt?: string;
+  concepts: string[];
+  difficulty: PlaygroundChallengeDifficulty;
+  id: string;
+  language: PlaygroundPreferredLanguage;
+  layerName: string;
+  projectName?: string;
+  prompt: string;
+  sandbox: {
+    executeLabel: string;
+    futureHook: string;
+    status: "planned";
+    supported: false;
+    validationLabel: string;
+  };
+  selectedFiles: string[];
+  source: "layer-index" | "chat-intent";
+  steps: PlaygroundStep[];
+  title: string;
+  workspaceRoot?: string;
+};
+
+export type PlaygroundBootstrap = {
+  defaultDifficulty: PlaygroundChallengeDifficulty;
+  defaultLanguage: PlaygroundPreferredLanguage;
+  layers: PlaygroundLayerSummary[];
+  projectName: string;
+  suggestedPrompts: string[];
+  workspaceRoot: string;
+};
+
+export type PlaygroundSessionPayload = {
+  difficulty?: PlaygroundChallengeDifficulty;
+  language?: PlaygroundPreferredLanguage;
+  layerName?: string;
+  prompt?: string;
+  workspaceRoot?: string;
+};
+
+export type PlaygroundSessionResult = {
+  session: PlaygroundSession;
+  sessionId: string;
+};
+
+export type PlaygroundSessionCard = {
+  createdAt: string;
+  difficulty: PlaygroundChallengeDifficulty;
+  id: string;
+  language: PlaygroundPreferredLanguage;
+  layerName: string;
+  projectName: string;
+  prompt: string;
+  source: "layer-index" | "chat-intent";
+  stepCount: number;
+  title: string;
+};

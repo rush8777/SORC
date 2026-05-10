@@ -1,10 +1,10 @@
 'use client'
 
 import {
-  BookOpen,
   Calendar,
   FolderOpen,
   LayoutDashboard,
+  Play,
   TrendingUp,
   Users,
   Zap,
@@ -12,8 +12,8 @@ import {
 import { Button } from '@/components/ui/button'
 
 type SidebarProps = {
-  activeItem: 'dashboard' | 'projects'
-  onNavigate: (view: 'dashboard' | 'projects') => void
+  activeItem: 'dashboard' | 'projects' | 'ai-builder' | 'playground'
+  onNavigate: (view: 'dashboard' | 'projects' | 'ai-builder' | 'playground') => void
 }
 
 export default function Sidebar({ activeItem, onNavigate }: SidebarProps) {
@@ -29,23 +29,38 @@ export default function Sidebar({ activeItem, onNavigate }: SidebarProps) {
           <span>Dashboard</span>
         </button>
 
-        <a href="#" className="dashboard-sidebar__item">
-          <BookOpen size={20} />
-          <span>My learning</span>
-        </a>
+        <button
+          type="button"
+          className={activeItem === 'playground' ? 'dashboard-sidebar__item--active' : 'dashboard-sidebar__item'}
+          onClick={() => onNavigate('playground')}
+        >
+          <Play size={20} />
+          <span>PlayGround</span>
+        </button>
 
-        <a href="#" className="dashboard-sidebar__item">
+        <button
+          type="button"
+          className={activeItem === 'ai-builder' ? 'dashboard-sidebar__item--active' : 'dashboard-sidebar__item'}
+          onClick={() => onNavigate('ai-builder')}
+        >
           <Zap size={20} />
-          <span>AI Builder</span>
+          <span>Agent</span>
           <span className="dashboard-sidebar__pill dashboard-sidebar__pill--new">New</span>
-        </a>
+        </button>
 
         <a href="#" className="dashboard-sidebar__item">
           <TrendingUp size={20} />
           <span>Skills tracking</span>
         </a>
 
-        <a href="#" className="dashboard-sidebar__item">
+        <a
+          href="#"
+          className="dashboard-sidebar__item"
+          onClick={(event) => {
+            event.preventDefault()
+            window.alert('Coming soon')
+          }}
+        >
           <Calendar size={20} />
           <span>Events</span>
         </a>
@@ -60,7 +75,14 @@ export default function Sidebar({ activeItem, onNavigate }: SidebarProps) {
           <span className="dashboard-sidebar__pill dashboard-sidebar__pill--premium">Premium</span>
         </button>
 
-        <a href="#" className="dashboard-sidebar__item">
+        <a
+          href="#"
+          className="dashboard-sidebar__item"
+          onClick={(event) => {
+            event.preventDefault()
+            window.alert('Coming soon')
+          }}
+        >
           <Users size={20} />
           <span>Workspaces</span>
         </a>

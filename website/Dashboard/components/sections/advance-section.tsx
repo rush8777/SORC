@@ -1,14 +1,14 @@
 'use client'
 
-import { MessageCircle } from 'lucide-react'
+import { Brain, Lightbulb, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function AdvanceSection() {
   const bootcamps = [
-    { name: 'Full-Stack Developer' },
-    { name: 'AWS Cloud Practitioner' },
-    { name: 'AWS-Certified AI Practitioner' },
-    { name: 'Building Agentic AI Apps' },
+    { name: 'Full-Stack Developer', icon: '/assets/icons/fullstack-icon.svg' },
+    { name: 'AWS Cloud Practitioner', icon: '/assets/icons/aws-icon.svg' },
+    { name: 'AWS-Certified AI Practitioner', icon: '/assets/icons/ai-practitioner-icon.svg' },
+    { name: 'Building Agentic AI Apps', icon: '/assets/icons/agentic-ai-icon.svg' },
   ]
 
   return (
@@ -18,21 +18,31 @@ export default function AdvanceSection() {
       <div className="dashboard-grid dashboard-grid--feature">
         <div className="dashboard-card">
           <div className="dashboard-card__body">
-            <h3 className="dashboard-card__title">Fast-track your career growth with bootcamps</h3>
-            <p className="dashboard-card__muted">Learn live from industry experts</p>
+            <h3 className="dashboard-card__title">Don't Let AI Conquer Your Development Skills</h3>
+            <p className="dashboard-card__muted">Feels less productive when AI does 90% of the work</p>
 
             <p className="dashboard-card__description">
-              Join live virtual bootcamps led by experts as you gain real-world skills to succeed in tech. Build hands-on experience to continue your growth, earn industry-recognized certifications, and reach your career goals.
+              Take back control of your coding journey by building projects from scratch. Develop real problem-solving skills and maintain your productivity by writing meaningful code. Learn to think like a developer, not just prompt like a user, and build the confidence that comes from genuine mastery.
             </p>
 
             <div className="dashboard-card__list">
               <p className="dashboard-card__eyebrow">Trending now</p>
-              {bootcamps.map((camp) => (
-                <div key={camp.name} className="dashboard-card__list-item">
-                  <div className="dashboard-card__dot" />
-                  <span>{camp.name}</span>
-                </div>
-              ))}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {bootcamps.map((camp) => (
+                  <div key={camp.name} className="dashboard-card__list-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <img 
+                      src={camp.icon} 
+                      alt={camp.name} 
+                      style={{ 
+                        width: '16px', 
+                        height: '16px', 
+                        display: 'block'
+                      }} 
+                    />
+                    <span>{camp.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -45,16 +55,16 @@ export default function AdvanceSection() {
           <div className="dashboard-card__body">
             <div className="dashboard-card__split">
               <div>
-                <h3 className="dashboard-card__title">Get expert 1:1 coaching to grow your career</h3>
-                <p className="dashboard-card__muted">Accelerate your career with personalized 1:1 coaching</p>
+                <h3 className="dashboard-card__title">Reclaim Your Independence</h3>
+                <p className="dashboard-card__muted">Break free from AI dependency</p>
               </div>
               <div className="dashboard-card__icon">
-                <MessageCircle size={40} />
+                <Brain size={40} style={{ color: '#000000' }} />
               </div>
             </div>
 
             <p className="dashboard-card__description">
-              Get personalized feedback from real-world practitioners. Receive tailored guidance to help you prepare, explore new career paths with confidence, and receive tailored support to help you grow faster.
+              Learn to solve problems independently and debug your own code. Develop critical thinking skills that AI can't replace and build confidence to tackle any challenge.
             </p>
           </div>
 

@@ -3,9 +3,9 @@
 import { Bell, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export default function Header() {
+export default function Header({ hidden }: { hidden?: boolean }) {
   return (
-    <header className="dashboard-header">
+    <header className={`dashboard-header ${hidden ? 'dashboard-header--hidden' : ''}`}>
       <div className="dashboard-header__inner">
         <div className="dashboard-brand">
           <div className="dashboard-brand__mark" />

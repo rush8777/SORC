@@ -55,7 +55,7 @@ export function CenterContent({
   const markdown = getStepMarkdown(currentStep)
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-background">
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background">
       <div className="px-8 py-6 border-b border-border bg-white flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">{currentStep.title}</h1>
@@ -86,12 +86,12 @@ export function CenterContent({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-15 py-6">
+      <div className="flex-1 min-h-0 overflow-y-auto px-15 py-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="w-full max-w-5xl mx-auto"
+          className="w-full max-w-5xl min-h-full mx-auto"
         >
           <article className="prose prose-slate max-w-none prose-headings:text-foreground prose-p:text-foreground prose-p:leading-8 prose-strong:text-foreground prose-code:text-slate-100 prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-blockquote:border-l-slate-300 prose-blockquote:text-muted-foreground prose-li:text-foreground">
             <ReactMarkdown

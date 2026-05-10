@@ -42,7 +42,7 @@ export default function DiscoverFeaturesSection() {
                 <h3 className="dashboard-feature-card__title">{feature.title}</h3>
                 <p className="dashboard-feature-card__description">{feature.description}</p>
                 <button className="dashboard-feature-card__chevron" aria-label={`Open ${feature.title}`}>
-                  <ChevronRight size={16} />
+                  Coming Soon
                 </button>
               </div>
             </div>

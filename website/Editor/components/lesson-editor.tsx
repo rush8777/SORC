@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
+import { PanelLeft } from 'lucide-react'
 import { Toaster } from '@/components/ui/toaster'
 import { toast } from '@/hooks/use-toast'
 import { CenterContent } from './lesson/center-content'
@@ -120,7 +121,7 @@ export function LessonEditor() {
 
   return (
     <>
-      <div className="h-screen bg-background flex overflow-hidden">
+      <div className="h-[125vh] bg-background flex overflow-hidden" style={{ zoom: 0.8 }}>
         <motion.div
           className="flex-1 flex flex-col overflow-hidden"
           initial={{ opacity: 0 }}
@@ -153,6 +154,20 @@ export function LessonEditor() {
             onToggle={() => setRightSidebarOpen(!rightSidebarOpen)}
           />
         </motion.div>
+
+        {!rightSidebarOpen && (
+          <motion.button
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setRightSidebarOpen(true)}
+            className="fixed right-12 top-32 z-50 flex items-center justify-center w-8 h-8 bg-white border border-border rounded-full shadow-md hover:shadow-lg hover:bg-accent hover:text-accent-foreground transition-all duration-200"
+            aria-label="Expand sidebar"
+          >
+            <PanelLeft className="w-4 h-4" />
+          </motion.button>
+        )}
       </div>
       <Toaster />
     </>

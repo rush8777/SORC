@@ -48,10 +48,10 @@ export function RightSidebar({
         animate={{ opacity: isOpen ? 1 : 0, width: isOpen ? 320 : 0 }}
         exit={{ opacity: 0, width: 0 }}
         transition={{ duration: 0.3 }}
-        className="relative bg-white border-l border-border flex flex-col overflow-hidden"
+        className="relative bg-white border-l border-border flex flex-col h-full"
       >
-        <div className="w-full bg-white border-l border-border flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <div className="w-full bg-white border-l border-border flex flex-col h-full">
+          <div className="flex items-center justify-between px-6 py-4">
             <h2 className="text-sm font-semibold text-foreground">Learning</h2>
             <Button
               variant="ghost"
@@ -64,7 +64,7 @@ export function RightSidebar({
             </Button>
           </div>
 
-          <div className="px-6 py-6 border-b border-border space-y-4">
+          <div className="px-6 py-6 space-y-4">
             <div>
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 Lesson Progress
@@ -81,7 +81,7 @@ export function RightSidebar({
             <Progress value={completionPercentage} className="h-2" />
           </div>
 
-          <div className="px-6 py-6 border-b border-border">
+          <div className="px-6 py-6">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">
               What you&apos;ll learn
             </p>
@@ -105,31 +105,13 @@ export function RightSidebar({
             </div>
           </div>
 
-          <div className="px-6 py-6 border-b border-border">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Notes
-              </p>
-              <button
-                type="button"
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Edit
-              </button>
-            </div>
-            <Textarea
-              placeholder="Write your notes here..."
-              value={notes}
-              onChange={(event) => onNotesChange(event.target.value)}
-              className="resize-none text-sm"
-              rows={4}
-            />
-          </div>
-
-          <div className="px-6 py-6 flex-1 overflow-y-auto">
+          
+          <div className="px-6 py-6">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">
               Files in this lesson
             </p>
+          </div>
+          <div className="px-6 pb-6 flex-1 overflow-y-auto">
             <div className="space-y-2">
               {lesson.codeFiles.map((file) => (
                 <motion.button

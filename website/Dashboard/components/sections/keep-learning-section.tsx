@@ -1,7 +1,6 @@
 'use client'
 
 import { ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 export default function KeepLearningSection() {
   return (
@@ -24,14 +23,9 @@ export default function KeepLearningSection() {
           </p>
         </div>
 
-        <Button className="dashboard-card__action dashboard-card__action--primary">
-          Resume
-          <ChevronRight size={16} />
-        </Button>
-
         <div className="dashboard-card__footer">
           <a href="#" className="dashboard-inline-link dashboard-text-link--small">
-            View all learning in progress
+            Resume
             <ChevronRight size={16} />
           </a>
         </div>
